@@ -1,0 +1,159 @@
+﻿@model ABCRetails.Models.FileUploadModel
+
+@{
+    ViewData["Title"] = "Upload Files";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h4 class="card-title mb-0">
+                    <i class="fas fa-cloud-upload-alt me-2"></i>@ViewData["Title"]
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Upload payment proofs and documents. Files will be stored in both Blob Storage and File Share.
+                </div>
+
+                <form asp-action="Index" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="OrderId" class="form-label">
+                                <i class="fas fa-receipt me-1"></i>Order ID
+                            </label>
+                            <input asp-for="OrderId" class="form-control" placeholder="Enter order ID" />
+                            <span asp-validation-for="OrderId" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="CustomerName" class="form-label">
+                                <i class="fas fa-user me-1"></i>Customer Name
+                            </label>
+                            <input asp-for="CustomerName" class="form-control" placeholder="Enter customer name" />
+                            <span asp-validation-for="CustomerName" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="ProofOfPayment" class="form-label">
+                            <i class="fas fa-file-invoice me-1"></i>Proof of Payment
+                        </label>
+                        <div class="file-upload-area">
+                            <input asp-for="ProofOfPayment" class="form-control" type="file"
+                                   accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" required />
+                            <div class="form-text">Supported formats: PDF, JPG, PNG, DOC, DOCX (Max 10MB)</div>
+                            <span asp-validation-for="ProofOfPayment" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button type="reset" class="btn btn-outline-secondary me-md-2">
+                            <i class="fas fa-undo me-1"></i>Clear
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-upload me-1"></i>Upload File
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show mt-4" role="alert">
+                <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .card {
+            border: none;
+            border-radius: 1rem;
+        }
+
+        .file-upload-area {
+            border: 2px dashed #dee2e6;
+            border-radius: 0.5rem;
+            padding: 2rem;
+            text-align: center;
+            transition: border-color 0.3s ease;
+            background-color: #f8f9fa;
+        }
+
+            .file-upload-area:hover {
+                border-color: #0d6efd;
+                background-color: #e9ecef;
+            }
+
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .alert {
+            border: none;
+            border-radius: 0.5rem;
+        }
+
+        .btn {
+            border-radius: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+        }
+
+        .form-control {
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e9ecef;
+            transition: border-color 0.3s ease;
+        }
+
+            .form-control:focus {
+                border-color: #0d6efd;
+                box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+            }
+    </style>
+}
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        // File upload validation
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.querySelector('input[type="file"]');
+            const form = document.querySelector('.needs-validation');
+
+            fileInput.addEventListener('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    const fileSize = file.size / 1024 / 1024; // MB
+                    if (fileSize > 10) {
+                        this.setCustomValidity('File size must be less than 10MB');
+                    } else {
+                        this.setCustomValidity('');
+                    }
+                }
+            });
+
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            });
+        });
+    </script>
+}

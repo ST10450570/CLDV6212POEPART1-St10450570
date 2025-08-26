@@ -1,0 +1,289 @@
+﻿@model ABCRetails.Models.ViewModels.HomeViewModel
+@{
+    ViewData["Title"] = "Home - ABC Retails";
+}
+
+<div class="hero-section bg-gradient-primary text-white py-5 mb-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="display-4 fw-bold mb-3">
+                    <i class="fas fa-store me-3"></i>Welcome to ABC Retails!
+                </h1>
+                <p class="lead mb-4">Your one-stop shop for the best deals and latest products</p>
+                <div class="d-flex flex-wrap gap-3">
+                    <a asp-controller="Customer" asp-action="Index" class="btn btn-light btn-lg">
+                        <i class="fas fa-users me-2"></i>Manage Customers
+                    </a>
+                    <a asp-controller="Product" asp-action="Index" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-box me-2"></i>Browse Products
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-4 text-center">
+                <i class="fas fa-shopping-bag fa-10x opacity-25"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Stats Cards -->
+    <div class="row mb-5">
+        <div class="col-md-4 mb-4">
+            <div class="card stats-card bg-primary text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h6 class="card-title text-uppercase small opacity-75">Total Customers</h6>
+                            <h2 class="card-text display-6 fw-bold">@Model.CustomerCount</h2>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-users fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-primary-dark">
+                    <a asp-controller="Customer" asp-action="Index" class="text-white text-decoration-none">
+                        View All <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card stats-card bg-success text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h6 class="card-title text-uppercase small opacity-75">Total Products</h6>
+                            <h2 class="card-text display-6 fw-bold">@Model.ProductCount</h2>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-box fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-success-dark">
+                    <a asp-controller="Product" asp-action="Index" class="text-white text-decoration-none">
+                        View All <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card stats-card bg-warning text-dark h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h6 class="card-title text-uppercase small opacity-75">Total Orders</h6>
+                            <h2 class="card-text display-6 fw-bold">@Model.OrderCount</h2>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-shopping-cart fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-warning-dark">
+                    <a asp-controller="Order" asp-action="Index" class="text-dark text-decoration-none">
+                        View All <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="text-primary">
+                    <i class="fas fa-bolt me-2"></i>Quick Actions
+                </h3>
+            </div>
+            <div class="row">
+                <div class="col-xl-3 col-md-6 mb-3">
+                    <a asp-controller="Customer" asp-action="Create" class="card action-card h-100 text-decoration-none">
+                        <div class="card-body text-center">
+                            <i class="fas fa-user-plus fa-3x text-primary mb-3"></i>
+                            <h5 class="card-title">Add Customer</h5>
+                            <p class="card-text text-muted small">Create a new customer profile</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-xl-3 col-md-6 mb-3">
+                    <a asp-controller="Product" asp-action="Create" class="card action-card h-100 text-decoration-none">
+                        <div class="card-body text-center">
+                            <i class="fas fa-plus-square fa-3x text-success mb-3"></i>
+                            <h5 class="card-title">Add Product</h5>
+                            <p class="card-text text-muted small">Add a new product to inventory</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-xl-3 col-md-6 mb-3">
+                    <a asp-controller="Order" asp-action="Create" class="card action-card h-100 text-decoration-none">
+                        <div class="card-body text-center">
+                            <i class="fas fa-cart-plus fa-3x text-warning mb-3"></i>
+                            <h5 class="card-title">Create Order</h5>
+                            <p class="card-text text-muted small">Process a new customer order</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-xl-3 col-md-6 mb-3">
+                    <a asp-controller="Upload" asp-action="Index" class="card action-card h-100 text-decoration-none">
+                        <div class="card-body text-center">
+                            <i class="fas fa-file-upload fa-3x text-info mb-3"></i>
+                            <h5 class="card-title">Upload Files</h5>
+                            <p class="card-text text-muted small">Upload payment proofs</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Featured Products -->
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="text-primary">
+                    <i class="fas fa-star text-warning me-2"></i>Featured Products
+                </h3>
+                <a asp-controller="Product" asp-action="Index" class="btn btn-outline-primary">
+                    View All Products <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+
+            @if (Model.FeaturedProducts.Any())
+            {
+                <div class="row">
+                    @foreach (var product in Model.FeaturedProducts)
+                    {
+                        <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
+                            <div class="card product-card h-100">
+                                <div class="product-image-container">
+                                    @if (!string.IsNullOrEmpty(product.ImageUrl))
+                                    {
+                                        <img src="@product.ImageUrl" class="card-img-top" alt="@product.ProductName">
+                                    }
+                                    else
+                                    {
+                                        <div class="card-img-top product-image-placeholder d-flex align-items-center justify-content-center">
+                                            <i class="fas fa-image fa-3x text-muted"></i>
+                                        </div>
+                                    }
+                                    <span class="product-stock-badge @(product.StockAvailable > 10 ? "bg-success" : product.StockAvailable > 0 ? "bg-warning" : "bg-danger")">
+                                        @product.StockAvailable in stock
+                                    </span>
+                                </div>
+                                <div class="card-body">
+                                    <h5 class="card-title">@product.ProductName</h5>
+                                    <p class="card-text text-muted small">@product.Description</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="h5 text-success mb-0">@product.Price.ToString("C")</span>
+                                        <span class="badge bg-secondary">ID: @product.ProductId</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-box fa-4x text-muted mb-3"></i>
+                    <h4 class="text-muted">No Featured Products</h4>
+                    <p class="text-muted">Add products to see them featured here.</p>
+                    <a asp-controller="Product" asp-action="Create" class="btn btn-primary">
+                        <i class="fas fa-plus-circle me-2"></i>Add Product
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 1rem;
+            margin: 0 -1rem;
+        }
+
+        .stats-card {
+            border: none;
+            border-radius: 1rem;
+            transition: transform 0.3s ease;
+        }
+
+            .stats-card:hover {
+                transform: translateY(-5px);
+            }
+
+        .bg-primary-dark {
+            background-color: rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .bg-success-dark {
+            background-color: rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .bg-warning-dark {
+            background-color: rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .action-card {
+            border: none;
+            border-radius: 1rem;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+            .action-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+                background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+            }
+
+        .product-card {
+            border: none;
+            border-radius: 1rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+            .product-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            }
+
+        .product-image-container {
+            position: relative;
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .product-image {
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .product-image-placeholder {
+            height: 200px;
+            background-color: #f8f9fa;
+        }
+
+        .product-stock-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: white;
+        }
+    </style>
+}
