@@ -1,6 +1,7 @@
 ﻿using ABCRetails.Models;
 using ABCRetails.Models.ViewModels;
 using ABCRetails.Services;
+using Azure;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -104,7 +105,7 @@ namespace ABCRetails.Controllers
                         PreviousStock = product.StockAvailable + model.Quantity,
                         NewStockAvailable = product.StockAvailable,
                         UpdateBy = "OrderPlaced",
-                        UpdateDate = DateTime.UtcNow // Use UTC
+                        UpdateDate = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc) // Use UTC with proper Kind
                     };
                     await _storageService.SendMessageAsync("stock-updates", JsonSerializer.Serialize(stockMessage));
 
@@ -146,6 +147,13 @@ namespace ABCRetails.Controllers
             {
                 return NotFound();
             }
+
+            // Ensure we're working with UTC date in the view
+            if (order.OrderDate.Kind != DateTimeKind.Utc)
+            {
+                order.OrderDate = DateTime.SpecifyKind(order.OrderDate, DateTimeKind.Utc);
+            }
+
             return View(order);
         }
 
@@ -157,21 +165,50 @@ namespace ABCRetails.Controllers
             {
                 try
                 {
-                    // Ensure OrderDate is UTC
-                    if (order.OrderDate.Kind != DateTimeKind.Utc)
+                    // The core fix: Retrieve the existing entity to get the ETag for optimistic concurrency.
+                    // The 'order' object from the form will not have the ETag, causing the 'ifMatch' error.
+                    var existingOrder = await _storageService.GetEntityAsync<Order>("Order", order.RowKey);
+
+                    if (existingOrder == null)
                     {
-                        order.OrderDate = DateTime.SpecifyKind(order.OrderDate, DateTimeKind.Utc);
+                        ModelState.AddModelError("", "Order not found or already deleted.");
+                        return View(order);
                     }
 
-                    await _storageService.UpdateEntityAsync(order);
+                    // Now, update the properties of the EXISTING entity with the new values from the form.
+                    // This ensures the ETag is preserved on the object we will send to the service.
+                    existingOrder.CustomerId = order.CustomerId;
+                    existingOrder.ProductId = order.ProductId;
+                    existingOrder.Quantity = order.Quantity;
+                    existingOrder.OrderDate = order.OrderDate;
+                    existingOrder.Status = order.Status;
+                    existingOrder.TotalPrice = existingOrder.UnitPrice * existingOrder.Quantity;
+                    existingOrder.Username = order.Username;
+                    existingOrder.ProductName = order.ProductName;
+
+
+                    // Ensure OrderDate is UTC before updating
+                    if (existingOrder.OrderDate.Kind != DateTimeKind.Utc)
+                    {
+                        existingOrder.OrderDate = DateTime.SpecifyKind(existingOrder.OrderDate, DateTimeKind.Utc);
+                    }
+
+                    // Now call the update service with the entity that has the correct ETag.
+                    await _storageService.UpdateEntityAsync(existingOrder);
                     TempData["Success"] = "Order updated successfully!";
                     return RedirectToAction(nameof(Index));
+                }
+                catch (RequestFailedException ex) when (ex.Status == 412)
+                {
+                    // This specific catch block handles the concurrency conflict (HTTP 412 Precondition Failed).
+                    ModelState.AddModelError("", "The order has been modified by another user. Please refresh and try again.");
                 }
                 catch (Exception ex)
                 {
                     ModelState.AddModelError("", $"Error updating order: {ex.Message}");
                 }
             }
+            // If ModelState is not valid or an exception occurred, return the view with the current model.
             return View(order);
         }
 
@@ -239,7 +276,7 @@ namespace ABCRetails.Controllers
                     ProductName = order.ProductName,
                     PreviousStatus = previousStatus,
                     NewStatus = newStatus,
-                    UpdateDate = DateTime.UtcNow, // Use UTC
+                    UpdateDate = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc), // Use UTC with proper Kind
                     UpdateBy = "System"
                 };
 

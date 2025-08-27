@@ -52,8 +52,6 @@ namespace ABCRetails.Models
         [Display(Name = "Status")]
         public string Status { get; set; } = "Submitted";
 
-        // Helper property to display local date in views
-        [Display(Name = "Order Date (Local)")]
-        public DateTime LocalOrderDate => OrderDate.ToLocalTime();
+       
     }
 }

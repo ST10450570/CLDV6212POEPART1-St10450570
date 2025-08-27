@@ -36,7 +36,8 @@
 
             <div class="form-group mb-3">
                 <label asp-for="OrderDate" class="control-label"></label>
-                <input asp-for="OrderDate" class="form-control" type="date" />
+                <input asp-for="OrderDate" class="form-control" type="date"
+                       value="@Model.OrderDate.ToString("dd-MM-yyyy")" />
                 <span asp-validation-for="OrderDate" class="text-danger"></span>
             </div>
 

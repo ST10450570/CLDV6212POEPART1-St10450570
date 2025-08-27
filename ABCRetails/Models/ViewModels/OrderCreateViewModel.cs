@@ -21,7 +21,7 @@ namespace ABCRetails.Models.ViewModels
         [Display(Name = "Order Date")]
         [DataType(DataType.Date)]
         // Fix: Use DateTime.UtcNow to ensure the Kind is correct from the start
-        public DateTime OrderDate { get; set; } = DateTime.UtcNow;
+        public DateTime OrderDate { get; set; } = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc);
 
         [Required]
         [Display(Name = "Status")]
