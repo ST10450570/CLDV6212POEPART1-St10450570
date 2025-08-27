@@ -91,6 +91,12 @@
     </dl>
 </div>
 <div>
-    @Html.ActionLink("Edit", "Edit", new { /* id = Model.PrimaryKey */ }) |
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Edit" asp-route-id="@Model.RowKey" class="btn btn-primary">
+        <i class="fas fa-edit me-1"></i> Edit
+    </a>
+    |
+    <a asp-action="Index" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-1"></i> Back to List
+    </a>
 </div>
+

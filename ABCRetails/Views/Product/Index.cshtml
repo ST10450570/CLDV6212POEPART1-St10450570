@@ -23,7 +23,9 @@
                     <div class="product-image-container">
                         @if (!string.IsNullOrEmpty(item.ImageUrl))
                         {
-                            <img src="@item.ImageUrl" class="card-img-top product-image" alt="@item.ProductName">
+                            <img src="@item.ImageUrl"
+                                 alt="@item.ProductName"
+                                 class="card-img-top product-img-fit" />
                         }
                         else
                         {
@@ -42,7 +44,6 @@
                         </p>
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <span class="h5 text-success mb-0">@item.Price.ToString("C")</span>
-                            <span class="badge bg-secondary">ID: @item.ProductId</span>
                         </div>
                     </div>
                     <div class="card-footer bg-transparent">
@@ -78,6 +79,32 @@
         </div>
     }
 </div>
+
+<!-- Add this CSS -->
+<style>
+    .product-img-fit {
+        width: 100%;
+        height: 250px; /* keeps cards consistent */
+        object-fit: contain; /* ensures entire image fits */
+        background-color: #f8f9fa;
+        padding: 5px;
+    }
+
+    .product-image-container {
+        position: relative;
+    }
+
+    .product-stock-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 0.3rem 0.6rem;
+        border-radius: 0.5rem;
+        font-size: 0.8rem;
+        color: #fff;
+    }
+</style>
+
 
 @section Styles {
     <style>
