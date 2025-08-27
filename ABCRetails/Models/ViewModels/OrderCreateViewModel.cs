@@ -20,7 +20,8 @@ namespace ABCRetails.Models.ViewModels
         [Required]
         [Display(Name = "Order Date")]
         [DataType(DataType.Date)]
-        public DateTime OrderDate { get; set; } = DateTime.UtcNow.Date;
+        // Fix: Use DateTime.UtcNow to ensure the Kind is correct from the start
+        public DateTime OrderDate { get; set; } = DateTime.UtcNow;
 
         [Required]
         [Display(Name = "Status")]

@@ -7,7 +7,7 @@ namespace ABCRetails.Models
     public class Order : ITableEntity
     {
         public string PartitionKey { get; set; } = "Order";
-        public string RowKey { get; set; } = Guid.NewGuid().ToString();
+        public string RowKey { get; set; } = string.Empty;
         public DateTimeOffset? Timestamp { get; set; }
         public ETag ETag { get; set; }
 
@@ -33,7 +33,7 @@ namespace ABCRetails.Models
         [Required]
         [Display(Name = "Order Date")]
         [DataType(DataType.Date)]
-        public DateTime OrderDate { get; set; } = DateTime.UtcNow.Date;
+        public DateTime OrderDate { get; set; }
 
         [Required]
         [Display(Name = "Quantity")]
@@ -42,11 +42,11 @@ namespace ABCRetails.Models
 
         [Display(Name = "Unit Price")]
         [DataType(DataType.Currency)]
-        public decimal UnitPrice { get; set; }
+        public double UnitPrice { get; set; }
 
         [Display(Name = "Total Price")]
         [DataType(DataType.Currency)]
-        public decimal TotalPrice { get; set; }
+        public double TotalPrice { get; set; }
 
         [Required]
         [Display(Name = "Status")]

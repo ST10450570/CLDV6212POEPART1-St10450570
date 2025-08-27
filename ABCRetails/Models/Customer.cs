@@ -9,7 +9,7 @@ namespace ABCRetails.Models
         public string PartitionKey { get; set; } = "Customer";
         public string RowKey { get; set; } = Guid.NewGuid().ToString();
         public DateTimeOffset? Timestamp { get; set; }
-        public ETag ETag { get; set; }
+        public ETag ETag { get; set; } = ETag.All;
 
         [Display(Name = "Customer ID")]
         public string CustomerId => RowKey;

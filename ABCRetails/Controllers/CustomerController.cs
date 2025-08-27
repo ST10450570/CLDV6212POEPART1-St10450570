@@ -61,18 +61,42 @@ namespace ABCRetails.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Customer customer)
+        public async Task<IActionResult> Edit(string id, Customer customer)
         {
+            if (id != customer.RowKey)
+            {
+                return NotFound();
+            }
+
             if (ModelState.IsValid)
             {
                 try
                 {
+                    // Get the existing customer to preserve system properties
+                    var existingCustomer = await _storageService.GetEntityAsync<Customer>("Customer", id);
+                    if (existingCustomer == null)
+                    {
+                        TempData["Error"] = "Customer not found. It may have been deleted.";
+                        return RedirectToAction(nameof(Index));
+                    }
+
+                    // Preserve the system properties that shouldn't be modified by the user
+                    customer.PartitionKey = existingCustomer.PartitionKey;
+                    customer.RowKey = existingCustomer.RowKey;
+                    customer.Timestamp = existingCustomer.Timestamp;
+                    customer.ETag = existingCustomer.ETag;
+
                     await _storageService.UpdateEntityAsync(customer);
                     TempData["Success"] = "Customer updated successfully!";
                     return RedirectToAction(nameof(Index));
                 }
                 catch (Exception ex)
                 {
+                    if (ex.Message.Contains("modified by another user"))
+                    {
+                        TempData["Error"] = ex.Message;
+                        return RedirectToAction(nameof(Edit), new { id });
+                    }
                     ModelState.AddModelError("", $"Error updating customer: {ex.Message}");
                 }
             }

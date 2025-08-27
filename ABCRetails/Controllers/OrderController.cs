@@ -28,7 +28,8 @@ namespace ABCRetails.Controllers
             {
                 Customers = await _storageService.GetAllEntitiesAsync<Customer>(),
                 Products = await _storageService.GetAllEntitiesAsync<Product>(),
-                OrderDate = DateTime.UtcNow.Date // Set to UTC date
+                // Fix: Specify the DateTimeKind as UTC for the initial date
+                OrderDate = DateTime.SpecifyKind(DateTime.UtcNow.Date, DateTimeKind.Utc)
             };
             return View(viewModel);
         }
@@ -58,19 +59,19 @@ namespace ABCRetails.Controllers
                         return View(model);
                     }
 
-                    // Convert OrderDate to UTC
-                    var utcOrderDate = model.OrderDate.Kind == DateTimeKind.Utc
-                        ? model.OrderDate
-                        : DateTime.SpecifyKind(model.OrderDate, DateTimeKind.Utc);
+                    // Fix: Ensure the incoming date is always treated as UTC before creating the entity.
+                    var utcOrderDate = DateTime.SpecifyKind(model.OrderDate, DateTimeKind.Utc);
 
                     var order = new Order
                     {
+                        // Ensure a new unique ID is generated for each new order
+                        RowKey = Guid.NewGuid().ToString(),
                         CustomerId = model.CustomerId,
                         Username = customer.Username,
                         ProductId = model.ProductId,
                         ProductName = product.ProductName,
                         Quantity = model.Quantity,
-                        OrderDate = utcOrderDate, // Use UTC date
+                        OrderDate = utcOrderDate, // Use the corrected UTC date
                         UnitPrice = product.Price,
                         TotalPrice = product.Price * model.Quantity,
                         Status = model.Status,

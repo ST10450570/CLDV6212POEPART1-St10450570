@@ -26,7 +26,7 @@ namespace ABCRetails.Models
         [Required(ErrorMessage = "Price is required")]
         [Display(Name = "Price")]
         [DataType(DataType.Currency)]
-        public decimal Price { get; set; }
+        public double Price { get; set; }
 
         [Required]
         [Display(Name = "Stock Available")]
