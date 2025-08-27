@@ -3,6 +3,7 @@ using ABCRetails.Models.ViewModels;
 using ABCRetails.Services;
 using Azure;
 using Microsoft.AspNetCore.Mvc;
+using System.Reflection;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -208,7 +209,7 @@ namespace ABCRetails.Controllers
                     ModelState.AddModelError("", $"Error updating order: {ex.Message}");
                 }
             }
-            // If ModelState is not valid or an exception occurred, return the view with the current model.
+           
             return View(order);
         }
 
