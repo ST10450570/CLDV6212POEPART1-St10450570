@@ -149,59 +149,169 @@ namespace ABCRetails.Controllers
                 return NotFound();
             }
 
+            // Get customer and product for dropdowns
+            var customer = await _storageService.GetEntityAsync<Customer>("Customer", order.CustomerId);
+            var product = await _storageService.GetEntityAsync<Product>("Product", order.ProductId);
+
+            var viewModel = new OrderEditViewModel
+            {
+                Order = order,
+                Customers = await _storageService.GetAllEntitiesAsync<Customer>(),
+                Products = await _storageService.GetAllEntitiesAsync<Product>(),
+                StatusOptions = new List<string> { "Submitted", "Processing", "Shipped", "Delivered", "Cancelled" }
+            };
+
             // Ensure we're working with UTC date in the view
             if (order.OrderDate.Kind != DateTimeKind.Utc)
             {
                 order.OrderDate = DateTime.SpecifyKind(order.OrderDate, DateTimeKind.Utc);
             }
 
-            return View(order);
+            return View(viewModel);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Order order)
+        public async Task<IActionResult> Edit(string id, OrderEditViewModel viewModel)
         {
+            if (id != viewModel.Order.RowKey)
+            {
+                return NotFound();
+            }
+
             if (ModelState.IsValid)
             {
                 try
                 {
-                    // The core fix: Retrieve the existing entity to get the ETag for optimistic concurrency.
-                    // The 'order' object from the form will not have the ETag, causing the 'ifMatch' error.
-                    var existingOrder = await _storageService.GetEntityAsync<Order>("Order", order.RowKey);
-
+                    // Get the existing order with latest ETag
+                    var existingOrder = await _storageService.GetEntityAsync<Order>("Order", id);
                     if (existingOrder == null)
                     {
                         ModelState.AddModelError("", "Order not found or already deleted.");
-                        return View(order);
+                        await PopulateEditDropdowns(viewModel);
+                        return View(viewModel);
                     }
 
-                    // Now, update the properties of the EXISTING entity with the new values from the form.
-                    // This ensures the ETag is preserved on the object we will send to the service.
-                    existingOrder.CustomerId = order.CustomerId;
-                    existingOrder.ProductId = order.ProductId;
-                    existingOrder.Quantity = order.Quantity;
-                    existingOrder.OrderDate = order.OrderDate;
-                    existingOrder.Status = order.Status;
-                    existingOrder.TotalPrice = existingOrder.UnitPrice * existingOrder.Quantity;
-                    existingOrder.Username = order.Username;
-                    existingOrder.ProductName = order.ProductName;
+                    // Get the original product to restore stock (with latest ETag)
+                    var originalProduct = await _storageService.GetEntityAsync<Product>("Product", existingOrder.ProductId);
+                    if (originalProduct == null)
+                    {
+                        ModelState.AddModelError("", "Original product not found.");
+                        await PopulateEditDropdowns(viewModel);
+                        return View(viewModel);
+                    }
 
+                    // Get the selected product for price calculation (with latest ETag)
+                    var selectedProduct = await _storageService.GetEntityAsync<Product>("Product", viewModel.Order.ProductId);
+                    if (selectedProduct == null)
+                    {
+                        ModelState.AddModelError("", "Selected product not found.");
+                        await PopulateEditDropdowns(viewModel);
+                        return View(viewModel);
+                    }
 
-                    // Ensure OrderDate is UTC before updating
+                    // Check if product has changed
+                    bool productChanged = existingOrder.ProductId != viewModel.Order.ProductId;
+
+                    // Check if sufficient stock is available for the new product
+                    if (productChanged && selectedProduct.StockAvailable < viewModel.Order.Quantity)
+                    {
+                        ModelState.AddModelError("Order.Quantity", $"Insufficient stock for {selectedProduct.ProductName}. Available: {selectedProduct.StockAvailable}");
+                        await PopulateEditDropdowns(viewModel);
+                        return View(viewModel);
+                    }
+
+                    // Check if quantity increased for same product
+                    if (!productChanged && viewModel.Order.Quantity > existingOrder.Quantity)
+                    {
+                        int additionalQuantity = viewModel.Order.Quantity - existingOrder.Quantity;
+                        if (selectedProduct.StockAvailable < additionalQuantity)
+                        {
+                            ModelState.AddModelError("Order.Quantity", $"Insufficient stock. Available: {selectedProduct.StockAvailable}");
+                            await PopulateEditDropdowns(viewModel);
+                            return View(viewModel);
+                        }
+                    }
+
+                    // Handle stock updates based on the scenario
+                    if (productChanged)
+                    {
+                        // Scenario 1: Product changed - restore original product stock, deduct from new product
+                        originalProduct.StockAvailable += existingOrder.Quantity; // Restore original product stock
+                        await _storageService.UpdateEntityAsync(originalProduct);
+
+                        selectedProduct.StockAvailable -= viewModel.Order.Quantity; // Deduct from new product
+                        await _storageService.UpdateEntityAsync(selectedProduct);
+                    }
+                    else
+                    {
+                        // Scenario 2: Same product, quantity changed
+                        int quantityDifference = existingOrder.Quantity - viewModel.Order.Quantity;
+                        selectedProduct.StockAvailable += quantityDifference; // Add back if quantity decreased, deduct if increased
+                        await _storageService.UpdateEntityAsync(selectedProduct);
+                    }
+
+                    // Update order properties - use the existingOrder that has the correct ETag
+                    existingOrder.ProductId = viewModel.Order.ProductId;
+                    existingOrder.ProductName = selectedProduct.ProductName;
+                    existingOrder.Quantity = viewModel.Order.Quantity;
+                    existingOrder.OrderDate = viewModel.Order.OrderDate;
+                    existingOrder.Status = viewModel.Order.Status;
+                    existingOrder.UnitPrice = selectedProduct.Price;
+                    existingOrder.TotalPrice = selectedProduct.Price * viewModel.Order.Quantity;
+
+                    // Ensure OrderDate is UTC
                     if (existingOrder.OrderDate.Kind != DateTimeKind.Utc)
                     {
                         existingOrder.OrderDate = DateTime.SpecifyKind(existingOrder.OrderDate, DateTimeKind.Utc);
                     }
 
-                    // Now call the update service with the entity that has the correct ETag.
                     await _storageService.UpdateEntityAsync(existingOrder);
+
+                    // Send stock update messages
+                    if (productChanged)
+                    {
+                        var originalStockMessage = new
+                        {
+                            ProductId = originalProduct.ProductId,
+                            ProductName = originalProduct.ProductName,
+                            PreviousStock = originalProduct.StockAvailable - existingOrder.Quantity,
+                            NewStockAvailable = originalProduct.StockAvailable,
+                            UpdateBy = "OrderUpdated",
+                            UpdateDate = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc)
+                        };
+                        await _storageService.SendMessageAsync("stock-updates", JsonSerializer.Serialize(originalStockMessage));
+
+                        var newStockMessage = new
+                        {
+                            ProductId = selectedProduct.ProductId,
+                            ProductName = selectedProduct.ProductName,
+                            PreviousStock = selectedProduct.StockAvailable + viewModel.Order.Quantity,
+                            NewStockAvailable = selectedProduct.StockAvailable,
+                            UpdateBy = "OrderUpdated",
+                            UpdateDate = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc)
+                        };
+                        await _storageService.SendMessageAsync("stock-updates", JsonSerializer.Serialize(newStockMessage));
+                    }
+                    else
+                    {
+                        var stockMessage = new
+                        {
+                            ProductId = selectedProduct.ProductId,
+                            ProductName = selectedProduct.ProductName,
+                            PreviousStock = selectedProduct.StockAvailable + (existingOrder.Quantity - viewModel.Order.Quantity),
+                            NewStockAvailable = selectedProduct.StockAvailable,
+                            UpdateBy = "OrderUpdated",
+                            UpdateDate = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc)
+                        };
+                        await _storageService.SendMessageAsync("stock-updates", JsonSerializer.Serialize(stockMessage));
+                    }
+
                     TempData["Success"] = "Order updated successfully!";
                     return RedirectToAction(nameof(Index));
                 }
                 catch (RequestFailedException ex) when (ex.Status == 412)
                 {
-                    // This specific catch block handles the concurrency conflict (HTTP 412 Precondition Failed).
                     ModelState.AddModelError("", "The order has been modified by another user. Please refresh and try again.");
                 }
                 catch (Exception ex)
@@ -209,8 +319,9 @@ namespace ABCRetails.Controllers
                     ModelState.AddModelError("", $"Error updating order: {ex.Message}");
                 }
             }
-           
-            return View(order);
+
+            await PopulateEditDropdowns(viewModel);
+            return View(viewModel);
         }
 
         [HttpPost]
@@ -219,6 +330,31 @@ namespace ABCRetails.Controllers
         {
             try
             {
+                // Get the order first to restore stock
+                var order = await _storageService.GetEntityAsync<Order>("Order", id);
+                if (order != null)
+                {
+                    // Get the product and restore stock
+                    var product = await _storageService.GetEntityAsync<Product>("Product", order.ProductId);
+                    if (product != null)
+                    {
+                        product.StockAvailable += order.Quantity;
+                        await _storageService.UpdateEntityAsync(product);
+
+                        // Send stock update message
+                        var stockMessage = new
+                        {
+                            ProductId = product.ProductId,
+                            ProductName = product.ProductName,
+                            PreviousStock = product.StockAvailable - order.Quantity,
+                            NewStockAvailable = product.StockAvailable,
+                            UpdateBy = "OrderDeleted",
+                            UpdateDate = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc)
+                        };
+                        await _storageService.SendMessageAsync("stock-updates", JsonSerializer.Serialize(stockMessage));
+                    }
+                }
+
                 await _storageService.DeleteEntityAsync<Order>("Order", id);
                 TempData["Success"] = "Order deleted successfully!";
             }
@@ -294,6 +430,13 @@ namespace ABCRetails.Controllers
         {
             model.Customers = await _storageService.GetAllEntitiesAsync<Customer>();
             model.Products = await _storageService.GetAllEntitiesAsync<Product>();
+        }
+
+        private async Task PopulateEditDropdowns(OrderEditViewModel model)
+        {
+            model.Customers = await _storageService.GetAllEntitiesAsync<Customer>();
+            model.Products = await _storageService.GetAllEntitiesAsync<Product>();
+            model.StatusOptions = new List<string> { "Submitted", "Processing", "Shipped", "Delivered", "Cancelled" };
         }
     }
 }

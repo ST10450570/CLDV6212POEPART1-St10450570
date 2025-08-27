@@ -1,95 +1,175 @@
-﻿@model ABCRetails.Models.Order
+﻿@model ABCRetails.Models.ViewModels.OrderEditViewModel
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Edit Order";
 }
 
-<h1>Edit</h1>
+<h1>Edit Order</h1>
 
 <h4>Order</h4>
 <hr />
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-6">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <!-- Hidden fields for system properties -->
+            <input type="hidden" asp-for="Order.PartitionKey" />
+            <input type="hidden" asp-for="Order.RowKey" />
+            <input type="hidden" asp-for="Order.Timestamp" />
+            <input type="hidden" asp-for="Order.ETag" />
+            <input type="hidden" asp-for="Order.OrderId" />
+            <input type="hidden" asp-for="Order.CustomerId" />
+            <input type="hidden" asp-for="Order.Username" />
+            <input type="hidden" asp-for="Order.ProductName" />
+            <input type="hidden" asp-for="Order.UnitPrice" />
+            <input type="hidden" asp-for="Order.TotalPrice" />
+
             <div class="form-group">
-                <label asp-for="PartitionKey" class="control-label"></label>
-                <input asp-for="PartitionKey" class="form-control" />
-                <span asp-validation-for="PartitionKey" class="text-danger"></span>
+                <label class="control-label">Order ID</label>
+                <input asp-for="Order.OrderId" class="form-control" readonly />
+                <span asp-validation-for="Order.OrderId" class="text-danger"></span>
             </div>
+
             <div class="form-group">
-                <label asp-for="RowKey" class="control-label"></label>
-                <input asp-for="RowKey" class="form-control" />
-                <span asp-validation-for="RowKey" class="text-danger"></span>
+                <label class="control-label">Customer</label>
+                <select asp-for="Order.CustomerId" class="form-control" disabled>
+                    <option value="">Select Customer</option>
+                    @foreach (var customer in Model.Customers)
+                    {
+                        <option value="@customer.CustomerId" selected="@(customer.CustomerId == Model.Order.CustomerId)">
+                            @customer.Name @customer.Surname (@customer.Username)
+                        </option>
+                    }
+                </select>
+                <span asp-validation-for="Order.CustomerId" class="text-danger"></span>
             </div>
+
             <div class="form-group">
-                <label asp-for="Timestamp" class="control-label"></label>
-                <input asp-for="Timestamp" class="form-control" />
-                <span asp-validation-for="Timestamp" class="text-danger"></span>
+                <label class="control-label">Product</label>
+                <select asp-for="Order.ProductId" class="form-control" id="productDropdown">
+                    <option value="">Select Product</option>
+                    @foreach (var product in Model.Products)
+                    {
+                        <option value="@product.ProductId" data-price="@product.Price"
+                                selected="@(product.ProductId == Model.Order.ProductId)">
+                            @product.ProductName - @product.Price.ToString("0.00") (Stock: @product.StockAvailable)
+                        </option>
+                    }
+                </select>
+                <span asp-validation-for="Order.ProductId" class="text-danger"></span>
             </div>
+
             <div class="form-group">
-                <label asp-for="OrderId" class="control-label"></label>
-                <input asp-for="OrderId" class="form-control" />
-                <span asp-validation-for="OrderId" class="text-danger"></span>
+                <label class="control-label">Quantity</label>
+                <input asp-for="Order.Quantity" class="form-control" id="quantityInput" min="1" />
+                <span asp-validation-for="Order.Quantity" class="text-danger"></span>
+                <small id="stockMessage" class="form-text text-muted"></small>
             </div>
+
             <div class="form-group">
-                <label asp-for="CustomerId" class="control-label"></label>
-                <input asp-for="CustomerId" class="form-control" />
-                <span asp-validation-for="CustomerId" class="text-danger"></span>
+                <label class="control-label">Unit Price</label>
+                <input asp-for="Order.UnitPrice" class="form-control" readonly id="unitPriceDisplay" />
+                <span asp-validation-for="Order.UnitPrice" class="text-danger"></span>
             </div>
+
             <div class="form-group">
-                <label asp-for="Username" class="control-label"></label>
-                <input asp-for="Username" class="form-control" />
-                <span asp-validation-for="Username" class="text-danger"></span>
+                <label class="control-label">Total Price</label>
+                <input asp-for="Order.TotalPrice" class="form-control" readonly id="totalPriceDisplay" />
+                <span asp-validation-for="Order.TotalPrice" class="text-danger"></span>
             </div>
+
             <div class="form-group">
-                <label asp-for="ProductId" class="control-label"></label>
-                <input asp-for="ProductId" class="form-control" />
-                <span asp-validation-for="ProductId" class="text-danger"></span>
+                <label class="control-label">Order Date</label>
+                <input asp-for="Order.OrderDate" class="form-control" type="date" />
+                <span asp-validation-for="Order.OrderDate" class="text-danger"></span>
             </div>
+
             <div class="form-group">
-                <label asp-for="ProductName" class="control-label"></label>
-                <input asp-for="ProductName" class="form-control" />
-                <span asp-validation-for="ProductName" class="text-danger"></span>
+                <label class="control-label">Status</label>
+                <select asp-for="Order.Status" class="form-control">
+                    @foreach (var status in Model.StatusOptions)
+                    {
+                        <option value="@status" selected="@(status == Model.Order.Status)">@status</option>
+                    }
+                </select>
+                <span asp-validation-for="Order.Status" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="OrderDate" class="control-label"></label>
-                <input asp-for="OrderDate" class="form-control" />
-                <span asp-validation-for="OrderDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Quantity" class="control-label"></label>
-                <input asp-for="Quantity" class="form-control" />
-                <span asp-validation-for="Quantity" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UnitPrice" class="control-label"></label>
-                <input asp-for="UnitPrice" class="form-control" />
-                <span asp-validation-for="UnitPrice" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="TotalPrice" class="control-label"></label>
-                <input asp-for="TotalPrice" class="form-control" />
-                <span asp-validation-for="TotalPrice" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Status" class="control-label"></label>
-                <input asp-for="Status" class="form-control" />
-                <span asp-validation-for="Status" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+
+            <div class="form-group mt-3">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Back to List
+                </a>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index" class="btn btn-secondary">
-        <i class="fas fa-arrow-left me-1"></i> Back to List
-    </a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function () {
+            // Initialize values
+            updatePriceDisplay();
+            updateStockMessage();
+
+            // Event handlers
+            $('#productDropdown').change(function () {
+                updateProductDetails();
+                updatePriceDisplay();
+                updateStockMessage();
+            });
+
+            $('#quantityInput').on('input', function () {
+                updatePriceDisplay();
+                updateStockMessage();
+            });
+
+            function updateProductDetails() {
+                var selectedProduct = $('#productDropdown option:selected');
+                var price = selectedProduct.data('price');
+                $('#Order_UnitPrice').val(price);
+            }
+
+            function updatePriceDisplay() {
+                var unitPrice = parseFloat($('#Order_UnitPrice').val()) || 0;
+                var quantity = parseInt($('#quantityInput').val()) || 0;
+                var totalPrice = unitPrice * quantity;
+
+                // Display only numbers without currency symbols
+                $('#unitPriceDisplay').val(unitPrice.toFixed(2));
+                $('#totalPriceDisplay').val(totalPrice.toFixed(2));
+                $('#Order_TotalPrice').val(totalPrice);
+            }
+
+            function updateStockMessage() {
+                var selectedProduct = $('#productDropdown option:selected');
+                var availableStock = 0;
+
+                if (selectedProduct.length > 0 && selectedProduct.val() !== '') {
+                    var productText = selectedProduct.text();
+                    var stockMatch = productText.match(/Stock: (\d+)/);
+                    if (stockMatch) {
+                        availableStock = parseInt(stockMatch[1]);
+                    }
+                }
+
+                var quantity = parseInt($('#quantityInput').val()) || 0;
+
+                if (availableStock > 0) {
+                    if (quantity > availableStock) {
+                        $('#stockMessage').html('<span class="text-danger">Insufficient stock! Available: ' + availableStock + '</span>');
+                    } else {
+                        $('#stockMessage').html('Available stock: ' + availableStock);
+                    }
+                } else {
+                    $('#stockMessage').html('Stock information not available');
+                }
+            }
+        });
+    </script>
 }

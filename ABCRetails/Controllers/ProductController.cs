@@ -88,6 +88,13 @@ namespace ABCRetails.Controllers
                         return NotFound();
                     }
 
+                    // Preserve system properties that shouldn't be edited
+                    product.PartitionKey = originalProduct.PartitionKey;
+                    product.RowKey = originalProduct.RowKey;
+                    product.Timestamp = originalProduct.Timestamp;
+                    product.ETag = originalProduct.ETag;
+
+                    // Update editable fields
                     originalProduct.ProductName = product.ProductName;
                     originalProduct.Description = product.Description;
                     originalProduct.Price = product.Price;

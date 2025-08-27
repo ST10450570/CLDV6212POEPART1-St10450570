@@ -1,75 +1,87 @@
 ﻿@model ABCRetails.Models.Product
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Edit Product";
 }
 
-<h1>Edit</h1>
+<h1>Edit Product</h1>
 
 <h4>Product</h4>
 <hr />
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
+    <div class="col-md-6">
+        <form asp-action="Edit" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <!-- Hidden fields for system properties -->
+            <input type="hidden" asp-for="PartitionKey" />
+            <input type="hidden" asp-for="RowKey" />
+            <input type="hidden" asp-for="Timestamp" />
+            <input type="hidden" asp-for="ETag" />
+            <input type="hidden" asp-for="ProductId" />
+
             <div class="form-group">
-                <label asp-for="PartitionKey" class="control-label"></label>
-                <input asp-for="PartitionKey" class="form-control" />
-                <span asp-validation-for="PartitionKey" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="RowKey" class="control-label"></label>
-                <input asp-for="RowKey" class="form-control" />
-                <span asp-validation-for="RowKey" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Timestamp" class="control-label"></label>
-                <input asp-for="Timestamp" class="form-control" />
-                <span asp-validation-for="Timestamp" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ProductId" class="control-label"></label>
-                <input asp-for="ProductId" class="form-control" />
+                <label asp-for="ProductId" class="control-label">Product ID</label>
+                <input asp-for="ProductId" class="form-control" readonly />
                 <span asp-validation-for="ProductId" class="text-danger"></span>
             </div>
+
             <div class="form-group">
-                <label asp-for="ProductName" class="control-label"></label>
+                <label asp-for="ProductName" class="control-label">Product Name</label>
                 <input asp-for="ProductName" class="form-control" />
                 <span asp-validation-for="ProductName" class="text-danger"></span>
             </div>
+
             <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
+                <label asp-for="Description" class="control-label">Description</label>
+                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
+
             <div class="form-group">
-                <label asp-for="Price" class="control-label"></label>
-                <input asp-for="Price" class="form-control" />
+                <label asp-for="Price" class="control-label">Price</label>
+                <input asp-for="Price" class="form-control" type="number" step="0.01" min="0.01" />
                 <span asp-validation-for="Price" class="text-danger"></span>
             </div>
+
             <div class="form-group">
-                <label asp-for="StockAvailable" class="control-label"></label>
-                <input asp-for="StockAvailable" class="form-control" />
+                <label asp-for="StockAvailable" class="control-label">Stock Available</label>
+                <input asp-for="StockAvailable" class="form-control" type="number" min="0" />
                 <span asp-validation-for="StockAvailable" class="text-danger"></span>
             </div>
+
             <div class="form-group">
-                <label asp-for="ImageUrl" class="control-label"></label>
-                <input asp-for="ImageUrl" class="form-control" />
-                <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                <label class="control-label">Current Image</label>
+                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                {
+                    <div class="mt-2">
+                        <img src="@Model.ImageUrl" alt="Product Image" class="img-thumbnail" style="max-height: 200px;" />
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted">No image available</p>
+                }
             </div>
+
             <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+                <label class="control-label">Upload New Image (Optional)</label>
+                <input type="file" name="imageFile" class="form-control" accept="image/*" />
+                <small class="form-text text-muted">Leave empty to keep current image</small>
+            </div>
+
+            <div class="form-group mt-3">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Back to List
+                </a>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-   <a asp-action="Index" class="btn btn-secondary">
-        <i class="fas fa-arrow-left me-1"></i> Back to List
-    </a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
