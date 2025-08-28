@@ -23,10 +23,28 @@
             --shadow-hover: 0 8px 15px rgba(0, 0, 0, 0.1);
         }
 
-        body {
+        html, body {
+            height: 100%;
             font-family: 'Inter', sans-serif;
             background-color: #f5f7fb;
             line-height: 1.6;
+        }
+
+        /* Flexbox layout to push footer to bottom */
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            flex: 1 0 auto;
+            width: 100%;
+        }
+
+        .footer {
+            flex-shrink: 0;
+            width: 100%;
         }
 
         .navbar {
@@ -187,8 +205,8 @@
         footer {
             background: linear-gradient(135deg, var(--dark-bg), #2d3748);
             color: white;
-            margin-top: 3rem;
             box-shadow: 0 -2px 15px rgba(0, 0, 0, 0.1);
+            margin-top: auto; /* Ensure footer stays at bottom */
         }
 
             footer a {
@@ -217,6 +235,10 @@
 
             .btn {
                 padding: 0.5rem 1rem;
+            }
+            /* Ensure content doesn't get hidden behind footer on mobile */
+            .main-content {
+                padding-bottom: 1rem;
             }
         }
 
@@ -255,91 +277,99 @@
         .animate-fade-in-up {
             animation: fadeInUp 0.6s ease-out;
         }
+
+        /* Ensure content area has proper spacing */
+        .container-fluid.py-4 {
+            padding-top: 1.5rem !important;
+            padding-bottom: 2rem !important;
+        }
     </style>
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-dark">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                    <i class="fas fa-store me-2"></i>ABC Retails
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav me-auto">
-                        <li class="nav-item">
-                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")"
-                               asp-area="" asp-controller="Home" asp-action="Index">
-                                <i class="fas fa-home me-1"></i> Home
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Customer" ? "active" : "")"
-                               asp-area="" asp-controller="Customer" asp-action="Index">
-                                <i class="fas fa-users me-1"></i> Customers
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Product" ? "active" : "")"
-                               asp-area="" asp-controller="Product" asp-action="Index">
-                                <i class="fas fa-box me-1"></i> Products
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Order" ? "active" : "")"
-                               asp-area="" asp-controller="Order" asp-action="Index">
-                                <i class="fas fa-shopping-cart me-1"></i> Orders
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Upload" ? "active" : "")"
-                               asp-area="" asp-controller="Upload" asp-action="Index">
-                                <i class="fas fa-cloud-upload-alt me-1"></i> Upload Files
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["Action"]?.ToString() == "Privacy" ? "active" : "")"
-                               asp-area="" asp-controller="Home" asp-action="Privacy">
-                                <i class="fas fa-shield-alt me-1"></i> Privacy
-                            </a>
-                        </li>
-                    </ul>
-                    <div class="navbar-nav">
-                        <span class="navbar-text text-light">
-                            <i class="fas fa-calendar-alt me-1"></i> @DateTime.Now.ToString("MMM dd, yyyy")
-                        </span>
+    <div class="main-content">
+        <header>
+            <nav class="navbar navbar-expand-lg navbar-dark">
+                <div class="container-fluid">
+                    <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                        <i class="fas fa-store me-2"></i>ABC Retails
+                    </a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav me-auto">
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")"
+                                   asp-area="" asp-controller="Home" asp-action="Index">
+                                    <i class="fas fa-home me-1"></i> Home
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Customer" ? "active" : "")"
+                                   asp-area="" asp-controller="Customer" asp-action="Index">
+                                    <i class="fas fa-users me-1"></i> Customers
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Product" ? "active" : "")"
+                                   asp-area="" asp-controller="Product" asp-action="Index">
+                                    <i class="fas fa-box me-1"></i> Products
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Order" ? "active" : "")"
+                                   asp-area="" asp-controller="Order" asp-action="Index">
+                                    <i class="fas fa-shopping-cart me-1"></i> Orders
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Upload" ? "active" : "")"
+                                   asp-area="" asp-controller="Upload" asp-action="Index">
+                                    <i class="fas fa-cloud-upload-alt me-1"></i> Upload Files
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["Action"]?.ToString() == "Privacy" ? "active" : "")"
+                                   asp-area="" asp-controller="Home" asp-action="Privacy">
+                                    <i class="fas fa-shield-alt me-1"></i> Privacy
+                                </a>
+                            </li>
+                        </ul>
+                        <div class="navbar-nav">
+                            <span class="navbar-text text-light">
+                                <i class="fas fa-calendar-alt me-1"></i> @DateTime.Now.ToString("MMM dd, yyyy")
+                            </span>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </nav>
-    </header>
+            </nav>
+        </header>
 
-    <div class="container-fluid py-4">
-        <main role="main" class="pb-3 animate-fade-in-up">
-            <!-- Alert Messages -->
-            @if (TempData["Success"] != null)
-            {
-                <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
-                    <i class="fas fa-check-circle me-2"></i> @TempData["Success"]
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
-                </div>
-            }
-            @if (TempData["Error"] != null)
-            {
-                <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
-                    <i class="fas fa-exclamation-circle me-2"></i> @TempData["Error"]
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
-                </div>
-            }
+        <div class="container-fluid py-4">
+            <main role="main" class="pb-3 animate-fade-in-up">
+                <!-- Alert Messages -->
+                @if (TempData["Success"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+                        <i class="fas fa-check-circle me-2"></i> @TempData["Success"]
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                        <i class="fas fa-exclamation-circle me-2"></i> @TempData["Error"]
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+                    </div>
+                }
 
-            @RenderBody()
-        </main>
+                @RenderBody()
+            </main>
+        </div>
     </div>
 
-    <footer class="footer mt-5 py-4">
+    <footer class="footer py-4">
         <div class="container-fluid">
             <div class="row align-items-center">
                 <div class="col-md-6">

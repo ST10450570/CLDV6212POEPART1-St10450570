@@ -4,65 +4,161 @@
     ViewData["Title"] = "Edit Customer";
 }
 
-<h1>Edit Customer</h1>
+<!-- Enhanced Header with Block Bubble Effect -->
+<div class="header-bubble mb-4">
+    <h1 class="text-white">Edit Customer</h1>
+    <div class="bubble-decoration">
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+    </div>
+</div>
 
-<hr />
 <div class="row">
-    <div class="col-md-6">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="col-md-9">
+        <form asp-action="Edit" class="shadow-sm p-4 bg-white rounded">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-            <!-- Hidden fields for TableEntity properties -->
+            <!-- Hidden system fields -->
             <input type="hidden" asp-for="PartitionKey" />
             <input type="hidden" asp-for="RowKey" />
             <input type="hidden" asp-for="Timestamp" />
             <input type="hidden" asp-for="ETag" />
 
-            <div class="form-group">
-                <label asp-for="CustomerId" class="control-label">Customer ID</label>
-                <input asp-for="CustomerId" class="form-control" readonly />
-                <span asp-validation-for="CustomerId" class="text-danger"></span>
+            <!-- Customer Information -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Customer Information</h5>
+                </div>
+                <div class="card-body row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="CustomerId" class="form-label fw-semibold">Customer ID</label>
+                        <input asp-for="CustomerId" class="form-control" readonly />
+                        <span asp-validation-for="CustomerId" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Username" class="form-label fw-semibold">Username</label>
+                        <input asp-for="Username" class="form-control" />
+                        <span asp-validation-for="Username" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Name" class="form-label fw-semibold">First Name</label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Surname" class="form-label fw-semibold">Last Name</label>
+                        <input asp-for="Surname" class="form-control" />
+                        <span asp-validation-for="Surname" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label asp-for="Email" class="form-label fw-semibold">Email</label>
+                        <input asp-for="Email" class="form-control" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label asp-for="ShippingAddress" class="form-label fw-semibold">Shipping Address</label>
+                        <textarea asp-for="ShippingAddress" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="ShippingAddress" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label asp-for="Name" class="control-label">First Name</label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="Surname" class="control-label">Last Name</label>
-                <input asp-for="Surname" class="form-control" />
-                <span asp-validation-for="Surname" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="Username" class="control-label">Username</label>
-                <input asp-for="Username" class="form-control" />
-                <span asp-validation-for="Username" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="Email" class="control-label">Email</label>
-                <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="ShippingAddress" class="control-label">Shipping Address</label>
-                <textarea asp-for="ShippingAddress" class="form-control" rows="3"></textarea>
-                <span asp-validation-for="ShippingAddress" class="text-danger"></span>
-            </div>
-
-            <div class="form-group mt-3">
-                <button type="submit" class="btn btn-primary">Save Changes</button>
-                <a asp-action="Index" class="btn btn-secondary">
+            <!-- Action buttons -->
+            <div class="d-flex justify-content-between">
+                <a asp-action="Index" class="btn btn-outline-secondary">
                     <i class="fas fa-arrow-left me-1"></i> Back to List
                 </a>
+                <button type="submit" class="btn btn-primary px-4">Save Changes</button>
             </div>
         </form>
     </div>
 </div>
+
+@section Styles {
+    <style>
+        /* Enhanced Header with Bubble Effect */
+        .header-bubble {
+            background: linear-gradient(135deg, #4e54c8, #8f94fb);
+            padding: 1.5rem 2rem;
+            border-radius: 16px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(78, 84, 200, 0.3);
+        }
+
+            .header-bubble h1 {
+                font-weight: 700;
+                font-size: 2.5rem;
+                margin: 0;
+                position: relative;
+                z-index: 2;
+                text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+            }
+
+        .bubble-decoration {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+            .bubble:nth-child(1) {
+                width: 80px;
+                height: 80px;
+                top: -20px;
+                right: 30px;
+            }
+
+            .bubble:nth-child(2) {
+                width: 60px;
+                height: 60px;
+                bottom: -15px;
+                left: 40px;
+            }
+
+            .bubble:nth-child(3) {
+                width: 40px;
+                height: 40px;
+                bottom: 30px;
+                right: 60px;
+            }
+
+        /* Hover effects for buttons */
+        .btn {
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(to right, #4e54c8, #8f94fb);
+            border: none;
+        }
+
+            .btn-primary:hover {
+                background: linear-gradient(to right, #3a3fb8, #7a80f0);
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(78, 84, 200, 0.3);
+            }
+
+        .btn-outline-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(108, 117, 125, 0.3);
+        }
+    </style>
+}
 
 @section Scripts {
     @{

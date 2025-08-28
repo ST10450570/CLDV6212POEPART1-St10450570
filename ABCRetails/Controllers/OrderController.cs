@@ -426,6 +426,29 @@ namespace ABCRetails.Controllers
             }
         }
 
+        [HttpGet]
+        public async Task<JsonResult> GetProductImage(string productId)
+        {
+            try
+            {
+                var product = await _storageService.GetEntityAsync<Product>("Product", productId);
+                if (product != null && !string.IsNullOrEmpty(product.ImageUrl))
+                {
+                    return Json(new
+                    {
+                        success = true,
+                        imageUrl = product.ImageUrl
+                    });
+                }
+
+                return Json(new { success = false });
+            }
+            catch
+            {
+                return Json(new { success = false });
+            }
+        }
+
         private async Task PopulateDropdowns(OrderCreateViewModel model)
         {
             model.Customers = await _storageService.GetAllEntitiesAsync<Customer>();

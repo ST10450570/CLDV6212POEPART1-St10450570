@@ -4,81 +4,184 @@
     ViewData["Title"] = "Edit Product";
 }
 
-<h1>Edit Product</h1>
+<!-- Enhanced Header with Block Bubble Effect -->
+<div class="header-bubble mb-4">
+    <h1 class="text-white">Edit Product</h1>
+    <div class="bubble-decoration">
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+    </div>
+</div>
 
-<h4>Product</h4>
-<hr />
 <div class="row">
-    <div class="col-md-6">
-        <form asp-action="Edit" enctype="multipart/form-data">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="col-md-9">
+        <form asp-action="Edit" enctype="multipart/form-data" class="shadow-sm p-4 bg-white rounded">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-            <!-- Hidden fields for system properties -->
+            <!-- Hidden system fields -->
             <input type="hidden" asp-for="PartitionKey" />
             <input type="hidden" asp-for="RowKey" />
             <input type="hidden" asp-for="Timestamp" />
             <input type="hidden" asp-for="ETag" />
             <input type="hidden" asp-for="ProductId" />
 
-            <div class="form-group">
-                <label asp-for="ProductId" class="control-label">Product ID</label>
-                <input asp-for="ProductId" class="form-control" readonly />
-                <span asp-validation-for="ProductId" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="ProductName" class="control-label">Product Name</label>
-                <input asp-for="ProductName" class="form-control" />
-                <span asp-validation-for="ProductName" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="Description" class="control-label">Description</label>
-                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="Price" class="control-label">Price</label>
-                <input asp-for="Price" class="form-control" type="number" step="0.01" min="0.01" />
-                <span asp-validation-for="Price" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="StockAvailable" class="control-label">Stock Available</label>
-                <input asp-for="StockAvailable" class="form-control" type="number" min="0" />
-                <span asp-validation-for="StockAvailable" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label class="control-label">Current Image</label>
-                @if (!string.IsNullOrEmpty(Model.ImageUrl))
-                {
-                    <div class="mt-2">
-                        <img src="@Model.ImageUrl" alt="Product Image" class="img-thumbnail" style="max-height: 200px;" />
+            <!-- Product Information -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Product Information</h5>
+                </div>
+                <div class="card-body row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="ProductId" class="form-label fw-semibold">Product ID</label>
+                        <input asp-for="ProductId" class="form-control" readonly />
+                        <span asp-validation-for="ProductId" class="text-danger"></span>
                     </div>
-                }
-                else
-                {
-                    <p class="text-muted">No image available</p>
-                }
+
+                    <div class="col-md-6">
+                        <label asp-for="ProductName" class="form-label fw-semibold">Product Name</label>
+                        <input asp-for="ProductName" class="form-control" />
+                        <span asp-validation-for="ProductName" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label asp-for="Description" class="form-label fw-semibold">Description</label>
+                        <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Price" class="form-label fw-semibold">Price</label>
+                        <input asp-for="Price" class="form-control" type="number" step="0.01" min="0.01" />
+                        <span asp-validation-for="Price" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="StockAvailable" class="form-label fw-semibold">Stock Available</label>
+                        <input asp-for="StockAvailable" class="form-control" type="number" min="0" />
+                        <span asp-validation-for="StockAvailable" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label class="control-label">Upload New Image (Optional)</label>
-                <input type="file" name="imageFile" class="form-control" accept="image/*" />
-                <small class="form-text text-muted">Leave empty to keep current image</small>
+            <!-- Image Section -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Product Image</h5>
+                </div>
+                <div class="card-body row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Current Image</label>
+                        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                        {
+                            <div class="mt-2">
+                                <img src="@Model.ImageUrl" alt="Product Image" class="img-thumbnail" style="max-height: 200px;" />
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-muted">No image available</p>
+                        }
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Upload New Image (Optional)</label>
+                        <input type="file" name="imageFile" class="form-control" accept="image/*" />
+                        <small class="form-text text-muted">Leave empty to keep current image</small>
+                    </div>
+                </div>
             </div>
 
-            <div class="form-group mt-3">
-                <button type="submit" class="btn btn-primary">Save Changes</button>
-                <a asp-action="Index" class="btn btn-secondary">
+            <!-- Action buttons -->
+            <div class="d-flex justify-content-between">
+                <a asp-action="Index" class="btn btn-outline-secondary">
                     <i class="fas fa-arrow-left me-1"></i> Back to List
                 </a>
+                <button type="submit" class="btn btn-primary px-4">Save Changes</button>
             </div>
         </form>
     </div>
 </div>
+
+@section Styles {
+    <style>
+        /* Enhanced Header with Bubble Effect */
+        .header-bubble {
+            background: linear-gradient(135deg, #4e54c8, #8f94fb);
+            padding: 1.5rem 2rem;
+            border-radius: 16px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(78, 84, 200, 0.3);
+        }
+
+        .header-bubble h1 {
+            font-weight: 700;
+            font-size: 2.5rem;
+            margin: 0;
+            position: relative;
+            z-index: 2;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .bubble-decoration {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .bubble:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            top: -20px;
+            right: 30px;
+        }
+
+        .bubble:nth-child(2) {
+            width: 60px;
+            height: 60px;
+            bottom: -15px;
+            left: 40px;
+        }
+
+        .bubble:nth-child(3) {
+            width: 40px;
+            height: 40px;
+            bottom: 30px;
+            right: 60px;
+        }
+        
+        /* Hover effects for buttons */
+        .btn {
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(to right, #4e54c8, #8f94fb);
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(to right, #3a3fb8, #7a80f0);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(78, 84, 200, 0.3);
+        }
+        
+        .btn-outline-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(108, 117, 125, 0.3);
+        }
+    </style>
+}
 
 @section Scripts {
     @{
